@@ -177,7 +177,7 @@
 
         <!-- خانة رفع الصور -->
         <div class="form-group">
-            <label for="imageFile">إرفاق صورة التحليل / الشارت:</label>
+            <label for="imageFile">إرفاق صورة التحليل / الشارت (اختياري):</label>
             <input type="file" id="imageFile" accept="image/*">
         </div>
 
@@ -192,7 +192,7 @@
             <textarea id="notes" rows="2" placeholder="إدارة رأس المال..."></textarea>
         </div>
 
-        <button onclick="sendSignal()" id="sendBtn">نشر الصفقة للقناة 🚀</button>
+        <button onclick="sendSignal()" id="sendBtn">نشر للقناة 🚀</button>
     </div>
 
     <script>
@@ -213,37 +213,35 @@
             const notes = document.getElementById('notes').value;
             const imageInput = document.getElementById('imageFile');
 
-            if (!pair || !entry) {
-                alert("يرجى ملء حقل الزوج وسعر الدخول على الأقل!");
-                return;
-            }
-
             btn.innerHTML = "جاري الإرسال...";
             btn.disabled = true;
             btn.style.opacity = '0.7';
 
-            let messageText = `
-🟢 **صفقة جديدة - ${type}**
+            // بناء النص بناءً على الحقول الممتلئة فقط
+            let messageText = `🟢 **صفقة جديدة - ${type}**\n`;
 
-📊 **الزوج/الأصل:** ${pair}
-📍 **سعر الدخول:** ${entry}
-🎯 **الهدف الأول (TP1):** ${tp1 || 'غير محدد'}
-🎯 **الهدف الثاني (TP2):** ${tp2 || 'غير محدد'}
-🛑 **وقف الخسارة (SL):** ${sl || 'غير محدد'}
-            `.trim();
+            if (pair) messageText += `\n📊 **الزوج/الأصل:** ${pair}`;
+            if (entry) messageText += `\n📍 **سعر الدخول:** ${entry}`;
+            if (tp1) messageText += `\n🎯 **الهدف الأول (TP1):** ${tp1}`;
+            if (tp2) messageText += `\n🎯 **الهدف الثاني (TP2):** ${tp2}`;
+            if (sl) messageText += `\n🛑 **وقف الخسارة (SL):** ${sl}`;
 
             if (customMessage) {
                 messageText += `\n\n💬 **رسالة توجيهية:**\n${customMessage}`;
             }
 
-            messageText += `\n\n📝 **ملاحظات:**\n${notes || 'لا توجد ملاحظات'}\n\n⚠️ **يرجى الالتزام التام بإدارة رأس المال.**`;
+            if (notes) {
+                messageText += `\n\n📝 **ملاحظات:**\n${notes}`;
+            }
 
-            // التحقق مما إذا كان المستخدم قد أرفق صورة أم لا
+            messageText = messageText.trim();
+
+            // التحقق مما إذا كان هناك صورة مرفقة أم لا
             if (imageInput.files && imageInput.files[0]) {
                 const formData = new FormData();
                 formData.append('chat_id', channelId);
                 formData.append('photo', imageInput.files[0]);
-                formData.append('caption', messageText);
+                if (messageText) formData.append('caption', messageText);
                 formData.append('parse_mode', 'Markdown');
 
                 fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
@@ -255,13 +253,13 @@
                 .catch(error => handleError(error, btn, originalText));
 
             } else {
-                // إرسال كرسالة نصية فقط إذا لم يتم رفع صورة
+                // إرسال رسالة نصية فقط
                 fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: channelId,
-                        text: messageText,
+                        text: messageText || "رسالة جديدة",
                         parse_mode: 'Markdown'
                     })
                 })
@@ -277,7 +275,7 @@
             btn.style.opacity = '1';
 
             if (data.ok) {
-                alert("تم نشر الصفقة بنجاح في القناة! 🚀");
+                alert("تم الإرسال بنجاح للقناة! 🚀");
                 document.getElementById('pair').value = '';
                 document.getElementById('entry').value = '';
                 document.getElementById('tp1').value = '';
