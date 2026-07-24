@@ -112,6 +112,9 @@
             background-size: 12px;
             padding-left: 35px;
         }
+        select option[value=""] {
+            color: #64748b;
+        }
         button {
             width: 100%;
             padding: 15px;
@@ -148,6 +151,7 @@
         <div class="form-group">
             <label for="signalType">نوع الصفقة / الخيار:</label>
             <select id="signalType">
+                <option value="" disabled selected style="display:none;">اختر نوع الصفقة...</option>
                 <option value="شراء (BUY) 🟢">شراء (BUY)</option>
                 <option value="بيع (SELL) 🔴">بيع (SELL)</option>
                 <option value="باي ستوب (BUY STOP) 🚀">باي ستوب (BUY STOP)</option>
@@ -219,6 +223,11 @@
             const notes = document.getElementById('notes').value;
             const imageInput = document.getElementById('imageFile');
 
+            if (!type) {
+                alert("يرجى اختيار نوع الصفقة أو الخيار أولاً!");
+                return;
+            }
+
             btn.innerHTML = "جاري الإرسال...";
             btn.disabled = true;
             btn.style.opacity = '0.7';
@@ -279,6 +288,7 @@
 
             if (data.ok) {
                 alert("تم الإرسال بنجاح للقناة! 🚀");
+                document.getElementById('signalType').value = '';
                 document.getElementById('pair').value = '';
                 document.getElementById('entry').value = '';
                 document.getElementById('tp1').value = '';
