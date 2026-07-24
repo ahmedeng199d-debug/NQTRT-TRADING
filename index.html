@@ -217,8 +217,8 @@
             btn.disabled = true;
             btn.style.opacity = '0.7';
 
-            // بناء النص بناءً على الحقول الممتلئة فقط
-            let messageText = `🟢 **صفقة جديدة - ${type}**\n`;
+            // بناء النص مع إضافة بصمة NQTRT Trading في المقدمة
+            let messageText = `⚡ **[ NQTRT Trading ]** ⚡\n🟢 **صفقة جديدة - ${type}**\n`;
 
             if (pair) messageText += `\n📊 **الزوج/الأصل:** ${pair}`;
             if (entry) messageText += `\n📍 **سعر الدخول:** ${entry}`;
@@ -236,7 +236,6 @@
 
             messageText = messageText.trim();
 
-            // التحقق مما إذا كان هناك صورة مرفقة أم لا
             if (imageInput.files && imageInput.files[0]) {
                 const formData = new FormData();
                 formData.append('chat_id', channelId);
@@ -253,13 +252,12 @@
                 .catch(error => handleError(error, btn, originalText));
 
             } else {
-                // إرسال رسالة نصية فقط
                 fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: channelId,
-                        text: messageText || "رسالة جديدة",
+                        text: messageText || "⚡ **[ NQTRT Trading ]** ⚡",
                         parse_mode: 'Markdown'
                     })
                 })
