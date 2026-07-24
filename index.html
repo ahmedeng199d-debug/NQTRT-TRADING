@@ -40,7 +40,6 @@
             text-align: center;
             margin-bottom: 15px;
         }
-        /* تصميم اللوغو البرمجي باسم NQTRT فقط */
         .app-logo-box {
             width: 85px;
             height: 85px;
@@ -92,6 +91,11 @@
             font-size: 16px;
             -webkit-appearance: none;
         }
+        input[type="file"] {
+            padding: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #38bdf8;
@@ -130,7 +134,6 @@
 
     <div class="container">
         <div class="app-header">
-            <!-- اللوغو باسم NQTRT فقط -->
             <div class="app-logo-box">
                 <span class="logo-text">NQTRT</span>
             </div>
@@ -172,8 +175,20 @@
             <input type="text" id="sl" inputmode="decimal" placeholder="مثال: 2340.00">
         </div>
 
+        <!-- خانة رفع الصور -->
         <div class="form-group">
-            <label for="notes">ملاحظات إضافية:</label>
+            <label for="imageFile">إرفاق صورة التحليل / الشارت:</label>
+            <input type="file" id="imageFile" accept="image/*">
+        </div>
+
+        <!-- خانة الرسائل الإضافية -->
+        <div class="form-group">
+            <label for="customMessage">رسالة أو توجيه إضافي للقناة:</label>
+            <textarea id="customMessage" rows="2" placeholder="اكتب أي رسالة أو تفاصيل إضافية هنا..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="notes">ملاحظات إدارة رأس المال:</label>
             <textarea id="notes" rows="2" placeholder="إدارة رأس المال..."></textarea>
         </div>
 
@@ -194,7 +209,9 @@
             const tp1 = document.getElementById('tp1').value;
             const tp2 = document.getElementById('tp2').value;
             const sl = document.getElementById('sl').value;
+            const customMessage = document.getElementById('customMessage').value;
             const notes = document.getElementById('notes').value;
+            const imageInput = document.getElementById('imageFile');
 
             if (!pair || !entry) {
                 alert("يرجى ملء حقل الزوج وسعر الدخول على الأقل!");
@@ -205,7 +222,7 @@
             btn.disabled = true;
             btn.style.opacity = '0.7';
 
-            const messageText = `
+            let messageText = `
 🟢 **صفقة جديدة - ${type}**
 
 📊 **الزوج/الأصل:** ${pair}
@@ -213,49 +230,73 @@
 🎯 **الهدف الأول (TP1):** ${tp1 || 'غير محدد'}
 🎯 **الهدف الثاني (TP2):** ${tp2 || 'غير محدد'}
 🛑 **وقف الخسارة (SL):** ${sl || 'غير محدد'}
-
-📝 **ملاحظات:**
-${notes || 'لا توجد ملاحظات'}
-
-⚠️ **يرجى الالتزام التام بإدارة رأس المال.**
             `.trim();
 
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    chat_id: channelId,
-                    text: messageText,
-                    parse_mode: 'Markdown'
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                btn.style.opacity = '1';
+            if (customMessage) {
+                messageText += `\n\n💬 **رسالة توجيهية:**\n${customMessage}`;
+            }
 
-                if (data.ok) {
-                    alert("تم نشر الصفقة بنجاح في القناة! 🚀");
-                    document.getElementById('pair').value = '';
-                    document.getElementById('entry').value = '';
-                    document.getElementById('tp1').value = '';
-                    document.getElementById('tp2').value = '';
-                    document.getElementById('sl').value = '';
-                    document.getElementById('notes').value = '';
-                } else {
-                    alert("فشل الإرسال: " + data.description);
-                }
-            })
-            .catch(error => {
-                console.error("خطأ:", error);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                alert("حدث خطأ في الاتصال بالخادم. يرجى التأكد من الإنترنت.");
-            });
+            messageText += `\n\n📝 **ملاحظات:**\n${notes || 'لا توجد ملاحظات'}\n\n⚠️ **يرجى الالتزام التام بإدارة رأس المال.**`;
+
+            // التحقق مما إذا كان المستخدم قد أرفق صورة أم لا
+            if (imageInput.files && imageInput.files[0]) {
+                const formData = new FormData();
+                formData.append('chat_id', channelId);
+                formData.append('photo', imageInput.files[0]);
+                formData.append('caption', messageText);
+                formData.append('parse_mode', 'Markdown');
+
+                fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => handleResponse(data, btn, originalText))
+                .catch(error => handleError(error, btn, originalText));
+
+            } else {
+                // إرسال كرسالة نصية فقط إذا لم يتم رفع صورة
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: channelId,
+                        text: messageText,
+                        parse_mode: 'Markdown'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => handleResponse(data, btn, originalText))
+                .catch(error => handleError(error, btn, originalText));
+            }
+        }
+
+        function handleResponse(data, btn, originalText) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.style.opacity = '1';
+
+            if (data.ok) {
+                alert("تم نشر الصفقة بنجاح في القناة! 🚀");
+                document.getElementById('pair').value = '';
+                document.getElementById('entry').value = '';
+                document.getElementById('tp1').value = '';
+                document.getElementById('tp2').value = '';
+                document.getElementById('sl').value = '';
+                document.getElementById('customMessage').value = '';
+                document.getElementById('notes').value = '';
+                document.getElementById('imageFile').value = '';
+            } else {
+                alert("فشل الإرسال: " + data.description);
+            }
+        }
+
+        function handleError(error, btn, originalText) {
+            console.error("خطأ:", error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            alert("حدث خطأ في الاتصال بالخادم. يرجى التأكد من الإنترنت.");
         }
     </script>
 </body>
