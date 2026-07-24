@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NQTRT Trading</title>
+    
+    <!-- إعدادات تطبيق الويب والأيقونة في الهاتف -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NQTRT Trading">
+    <meta name="theme-color" content="#0f172a">
+    
+    <!-- أيقونة الموقع والهاتف -->
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/wMS4nQp9/IMG-0342.jpg">
+    <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/wMS4nQp9/IMG-0342.jpg">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            height: -webkit-fill-available;
+        }
+        html {
+            height: -webkit-fill-available;
+        }
+        .container {
+            background-color: #1e293b;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #334155;
+        }
+        .app-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .app-logo {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            border: 2px solid #38bdf8;
+            object-fit: cover;
+            margin-bottom: 10px;
+            background-color: #0f172a;
+        }
+        h2 {
+            margin: 0;
+            color: #38bdf8;
+            font-size: 20px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            background-color: #0f172a;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 16px;
+            -webkit-appearance: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: 15px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:active {
+            transform: scale(0.98);
+            background-color: #075985;
+        }
+        button:hover {
+            background-color: #0369a1;
+        }
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3path fill='%2394a3b8' d='M6 8.825L1.175 4 2.238 2.938 6 6.7l3.762-3.762L10.825 4z'/%3E%3/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            background-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="app-header">
+            <!-- الشعار داخل صفحة الويب -->
+            <img src="https://i.postimg.cc/wMS4nQp9/IMG-0342.jpg" alt="NQTRT Logo" class="app-logo">
+            <h2>NQTRT Trading</h2>
+        </div>
+        
+        <div class="form-group">
+            <label for="signalType">نوع الصفقة:</label>
+            <select id="signalType">
+                <option value="BUY 🟢">شراء (BUY)</option>
+                <option value="SELL 🔴">بيع (SELL)</option>
+                <option value="BUY STOP 🚀">باي ستوب (BUY STOP)</option>
+                <option value="SELL STOP 🔻">سيل ستوب (SELL STOP)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="pair">الزوج / الأصل:</label>
+            <input type="text" id="pair" placeholder="مثال: XAUUSD أو NQ" autocapitalize="characters">
+        </div>
+
+        <div class="form-group">
+            <label for="entry">سعر الدخول:</label>
+            <input type="text" id="entry" inputmode="decimal" placeholder="مثال: 2350.50">
+        </div>
+
+        <div class="form-group">
+            <label for="tp1">الهدف الأول (TP1):</label>
+            <input type="text" id="tp1" inputmode="decimal" placeholder="مثال: 2360.00">
+        </div>
+
+        <div class="form-group">
+            <label for="tp2">الهدف الثاني (TP2):</label>
+            <input type="text" id="tp2" inputmode="decimal" placeholder="مثال: 2375.00">
+        </div>
+
+        <div class="form-group">
+            <label for="sl">وقف الخسارة (SL):</label>
+            <input type="text" id="sl" inputmode="decimal" placeholder="مثال: 2340.00">
+        </div>
+
+        <div class="form-group">
+            <label for="notes">ملاحظات إضافية:</label>
+            <textarea id="notes" rows="2" placeholder="إدارة رأس المال..."></textarea>
+        </div>
+
+        <button onclick="sendSignal()" id="sendBtn">نشر الصفقة للقناة 🚀</button>
+    </div>
+
+    <script>
+        const botToken = "8971090915:AAGnEK7Tvhz1b4aoGy1a0gatmozn8qxhSQs";
+        const channelId = "-1004426976276"; 
+
+        function sendSignal() {
+            const btn = document.getElementById('sendBtn');
+            const originalText = btn.innerHTML;
+            
+            const type = document.getElementById('signalType').value;
+            const pair = document.getElementById('pair').value;
+            const entry = document.getElementById('entry').value;
+            const tp1 = document.getElementById('tp1').value;
+            const tp2 = document.getElementById('tp2').value;
+            const sl = document.getElementById('sl').value;
+            const notes = document.getElementById('notes').value;
+
+            if (!pair || !entry) {
+                alert("يرجى ملء حقل الزوج وسعر الدخول على الأقل!");
+                return;
+            }
+
+            btn.innerHTML = "جاري الإرسال...";
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+
+            const messageText = `
+🟢 **صفقة جديدة - ${type}**
+
+📊 **الزوج/الأصل:** ${pair}
+📍 **سعر الدخول:** ${entry}
+🎯 **الهدف الأول (TP1):** ${tp1 || 'غير محدد'}
+🎯 **الهدف الثاني (TP2):** ${tp2 || 'غير محدد'}
+🛑 **وقف الخسارة (SL):** ${sl || 'غير محدد'}
+
+📝 **ملاحظات:**
+${notes || 'لا توجد ملاحظات'}
+
+⚠️ **يرجى الالتزام التام بإدارة رأس المال.**
+            `.trim();
+
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: channelId,
+                    text: messageText,
+                    parse_mode: 'Markdown'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+
+                if (data.ok) {
+                    alert("تم نشر الصفقة بنجاح في القناة! 🚀");
+                    document.getElementById('pair').value = '';
+                    document.getElementById('entry').value = '';
+                    document.getElementById('tp1').value = '';
+                    document.getElementById('tp2').value = '';
+                    document.getElementById('sl').value = '';
+                    document.getElementById('notes').value = '';
+                } else {
+                    alert("فشل الإرسال: " + data.description);
+                }
+            })
+            .catch(error => {
+                console.error("خطأ:", error);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                alert("حدث خطأ في الاتصال بالخادم. يرجى التأكد من الإنترنت.");
+            });
+        }
+    </script>
+</body>
+</html>
